@@ -36,3 +36,6 @@ jobs:
         with:
           name: angular.zip
           path: target/angular.zip
+          run: |
+            mkdir target
+            zip -r target/angular.zip Procfile *.json *.yml *.js scripts/* .platform/* server/* e2e/* src/* cypress/*
