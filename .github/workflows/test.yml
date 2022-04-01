@@ -23,9 +23,9 @@ jobs:
           node-version: "14.x"
       - run: npm ci
       #- run: npm run format:check
-      - run: npm test -- --coverage
-        env:
-          CI: true
+      - run: npm test
+       # env:
+         # CI: true
       - name: Build Projects
         if: github.event_name == 'push'
         run: npm run build 
