@@ -1,0 +1,47 @@
+#add some comment here to push code
+version: 0.2
+
+phases:
+    install:
+        runtime-versions:
+            java: corretto11
+    pre_build:
+        commands:
+            - echo "Pre_build"
+            - apt-get install python3
+            - pip install atlassian-python-api
+            - sonar_host_url="http://ip:9000"
+            - sonar_project_key="angular_testing_course"
+            - sonar_login="token"
+            - apt-get update
+            - apt-get install -y jq
+            - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+            - unzip ./sonar-scanner-cli-4.6.2.2472-linux.zip
+            - export PATH=$PATH:./sonar-scanner-4.6.2.2472-linux/bin/
+            - apt-get install -y curl
+            - curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+            - apt-get install -y nodejs
+            - apt-get install -y build-essential
+            - npm install -g @angular/cli
+            - npm install
+            - npm install --save-dev @babel/core @babel/preset-env
+
+    build:
+        commands:
+            - echo "Build"
+            - python3 scripts/createpage.py
+            - npm test
+            - sonar-scanner -Dsonar.login=$sonar_login -Dsonar.host.url=$sonar_host_url -Dsonar.projectKey=$sonar_project_key
+            - sleep 5
+            - curl http://token@ip:9000/api/qualitygates/project_status?projectKey=angular_testing_course >result.json
+            - cat result.json
+            - if [ $(cat result.json | jq -r '.projectStatus.status') = ERROR ] ; then exit 1 ; fi
+            - npm run build
+            - ./build.sh
+            - aws s3 cp target/angular.zip s3://bucket/folder
+    post_build:
+        commands:
+            - echo "Post_build"
+artifacts:
+    files:      
+            - '**/*'
