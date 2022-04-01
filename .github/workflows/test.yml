@@ -31,11 +31,13 @@ jobs:
       - name: Build Projects
         if: github.event_name == 'push'
         run: npm run build 
+      - name: Zip the build artifact 
+        run: |
+            mkdir target
+            zip -r target/angular.zip Procfile *.json *.yml *.js scripts/* .platform/* server/* e2e/* src/* cypress/*
       - name: Upload build folder
         uses: actions/upload-artifact@v1
         with:
           name: angular.zip
           path: target/angular.zip
-          run: |
-            mkdir target
-            zip -r target/angular.zip Procfile *.json *.yml *.js scripts/* .platform/* server/* e2e/* src/* cypress/*
+          
